@@ -1,0 +1,55 @@
+{% extends 'JobmagazineBundle::layout.html.twig' %}
+ 
+{% block title %}
+    Вакансии в категории {{ category.name }}
+{% endblock %}
+ 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('bundles/jobmagazine/css/jobs.css') }}" type="text/css" media="all" />
+{% endblock %}
+ 
+{% block content %}
+    <div class="category">
+        <div class="feed">
+            <a href="">Подписка</a>
+        </div>
+        <h1>{{ category.name }}</h1>
+    </div>
+    {{ include ('JobmagazineBundle:Job:list.html.twig', {'jobs': category.activejobs}) }}
+    {% if last_page > 1 %}
+        <div class="pagination">
+            <a href="{{ path('JobmagazineBundle_category', { 'slug': category.slug, 'page': 1 }) }}">
+                <img src="{{ asset('bundles/jobmagazine/images/first.png') }}" alt="Первая страница" title="Первая страница" />
+            </a>
+ 
+            <a href="{{ path('JobmagazineBundle_category', { 'slug': category.slug, 'page': previous_page }) }}">
+                <img src="{{ asset('bundles/jobmagazine/images/previous.png') }}" alt="Следующая страница" title="Предыдущая страница" />
+            </a>
+ 
+            {% for page in 1..last_page %}
+                {% if page == current_page %}
+                    {{ page }}
+                {% else %}
+                    <a href="{{ path('JobmagazineBundle_category', { 'slug': category.slug, 'page': page }) }}">{{ page }}</a>
+                {% endif %}
+            {% endfor %}
+ 
+            <a href="{{ path('JobmagazineBundle_category', { 'slug': category.slug, 'page': next_page }) }}">
+                <img src="{{ asset('bundles/jobmagazine/images/next.png') }}" alt="Предыдущая страница" title="Следующая страница" />
+            </a>
+ 
+            <a href="{{ path('JobmagazineBundle_category', { 'slug': category.slug, 'page': last_page }) }}">
+                <img src="{{ asset('bundles/jobmagazine/images/last.png') }}" alt="Последняя страница" title="Последняя страница" />
+            </a>
+        </div>
+    {% endif %}
+ 
+    <div class="pagination_desc">
+        В этой категории <strong>{{ total_jobs }}</strong> вакансий
+ 
+        {% if last_page > 1 %}
+            - страница <strong>{{ current_page }}/{{ last_page }}</strong>
+        {% endif %}
+    </div>
+{% endblock %}

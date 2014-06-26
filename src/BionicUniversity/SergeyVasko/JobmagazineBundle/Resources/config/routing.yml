@@ -1,0 +1,9 @@
+JobmagazineBundle_homepage:
+    pattern:  /
+    defaults: { _controller: JobmagazineBundle:Job:index }
+JobmagazineBundle_job:
+    resource: "@JobmagazineBundle/Resources/config/routing/job.yml"
+    prefix:   /job
+JobmagazineBundle_category:
+    pattern:  /category/{slug}/{page}
+    defaults: { _controller: JobmagazineBundle:Category:show, page: 1 }

@@ -1,0 +1,49 @@
+{% extends 'JobmagazineBundle::layout.html.twig' %}
+
+{% block title %}
+    {{ entity.company }} разыскивает {{ entity.position }}
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('bundles/jobmagazine/css/job.css') }}" type="text/css" media="all" />
+{% endblock %}
+
+{% block content %}
+    
+        <h1>{{ entity.company }}</h1>
+        <h2>{{ entity.location }}</h2>
+        <h3>
+            {{ entity.position }}
+            <small> - {{ entity.type }}</small>
+        </h3>
+ 
+        {% if entity.logo %}
+            <div class="logo">
+                <a href="{{ entity.url }}">
+                    <img src="/uploads/jobs/{{ entity.logo }}"
+                        alt="{{ entity.company }} logo" />
+                </a>
+            </div>
+        {% endif %}
+ 
+        <div class="description">
+            {{ entity.description|nl2br }}
+        </div>
+ 
+        <br />
+        <h3>Откликнуться на вакансию:</h3>
+ 
+        <p class="how_to_apply">{{ entity.howtoapply }}</p>
+ 
+        <div class="meta">
+            <small>добавлено {{ entity.createdat|date('m/d/Y') }}</small>
+        </div>
+ 
+        <div style="padding: 20px 0">
+            <a href="{{ path('job_edit', { 'id': entity.id }) }}">
+                Редактировать
+            </a>
+        </div>
+    </div>
+{% endblock %}

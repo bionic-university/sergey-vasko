@@ -1,0 +1,4 @@
+jobmagazine:
+    resource: "@JobmagazineBundle/Resources/config/routing.yml"
+    prefix:   /
+
