@@ -1,3 +1,26 @@
+PHP - Core: Final Project
+========================
+
+Job Magazine CMS (based on Symfony2)
+----------------------------------
+
+After installing clean cache
+
+    php app/console cache:clear --env=prod
+    php app/console cache:clear --env=dev
+
+and create database and fill it with demo data
+
+    php app/console doctrine:database:drop --force
+    php app/console doctrine:database:create
+    php app/console doctrine:schema:update --force
+    php app/console doctrine:fixtures:load
+
+
+
+### Ofitial Symfony2 documentation
+
+
 Symfony Standard Edition
 ========================
 
