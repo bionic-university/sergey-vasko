@@ -22,7 +22,7 @@ and clean cache:
 
 
 
-### Ofitial Symfony2 documentation
+### Official Symfony2 documentation
 
 
 Symfony Standard Edition
