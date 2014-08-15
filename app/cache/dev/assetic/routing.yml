@@ -2,4 +2,4 @@ _assetic:
     resource: .
     type: assetic
 _app:
-    resource: 'D:/webservers/home/sy2/app/config/routing_dev.yml'
+    resource: 'D:/webservers/home/symfony/bionic/jobeet/app/config/routing_dev.yml'

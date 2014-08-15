@@ -391,6 +391,18 @@ session_name($name);
 }
 }
 }
+namespace
+{
+interface SessionHandlerInterface
+{
+public function open($savePath, $sessionName);
+public function close();
+public function read($sessionId);
+public function write($sessionId, $data);
+public function destroy($sessionId);
+public function gc($maxlifetime);
+}
+}
 namespace Symfony\Component\HttpFoundation\Session\Storage\Proxy
 {
 class SessionHandlerProxy extends AbstractProxy implements \SessionHandlerInterface
@@ -1693,7 +1705,7 @@ if (!isset($this->sorted[$eventName])) {
 $this->sortListeners($eventName);
 }
 }
-return $this->sorted;
+return array_filter($this->sorted);
 }
 public function hasListeners($eventName = null)
 {
@@ -2866,7 +2878,7 @@ namespace
 {
 class Twig_Environment
 {
-const VERSION ='1.15.1';
+const VERSION ='1.16.0';
 protected $charset;
 protected $loader;
 protected $debug;
@@ -3864,15 +3876,15 @@ $thousandSep = $defaults[2];
 }
 return number_format((float) $number, $decimal, $decimalPoint, $thousandSep);
 }
-function twig_urlencode_filter($url, $raw = false)
+function twig_urlencode_filter($url)
 {
 if (is_array($url)) {
+if (defined('PHP_QUERY_RFC3986')) {
+return http_build_query($url,'','&', PHP_QUERY_RFC3986);
+}
 return http_build_query($url,'','&');
 }
-if ($raw) {
 return rawurlencode($url);
-}
-return urlencode($url);
 }
 if (version_compare(PHP_VERSION,'5.3.0','<')) {
 function twig_jsonencode_filter($value, $options = 0)
@@ -4445,20 +4457,19 @@ public function displayParentBlock($name, array $context, array $blocks = array(
 {
 $name = (string) $name;
 if (isset($this->traits[$name])) {
-$this->traits[$name][0]->displayBlock($name, $context, $blocks);
+$this->traits[$name][0]->displayBlock($name, $context, $blocks, false);
 } elseif (false !== $parent = $this->getParent($context)) {
-$parent->displayBlock($name, $context, $blocks);
+$parent->displayBlock($name, $context, $blocks, false);
 } else {
 throw new Twig_Error_Runtime(sprintf('The template has no parent and no traits defining the "%s" block', $name), -1, $this->getTemplateName());
 }
 }
-public function displayBlock($name, array $context, array $blocks = array())
+public function displayBlock($name, array $context, array $blocks = array(), $useBlocks = true)
 {
 $name = (string) $name;
-if (isset($blocks[$name])) {
+if ($useBlocks && isset($blocks[$name])) {
 $template = $blocks[$name][0];
 $block = $blocks[$name][1];
-unset($blocks[$name]);
 } elseif (isset($this->blocks[$name])) {
 $template = $this->blocks[$name][0];
 $block = $this->blocks[$name][1];
@@ -4475,7 +4486,7 @@ throw $e;
 throw new Twig_Error_Runtime(sprintf('An exception has been thrown during the rendering of a template ("%s").', $e->getMessage()), -1, $template->getTemplateName(), $e);
 }
 } elseif (false !== $parent = $this->getParent($context)) {
-$parent->displayBlock($name, $context, array_merge($this->blocks, $blocks));
+$parent->displayBlock($name, $context, array_merge($this->blocks, $blocks), false);
 }
 }
 public function renderParentBlock($name, array $context, array $blocks = array())
@@ -4484,10 +4495,10 @@ ob_start();
 $this->displayParentBlock($name, $context, $blocks);
 return ob_get_clean();
 }
-public function renderBlock($name, array $context, array $blocks = array())
+public function renderBlock($name, array $context, array $blocks = array(), $useBlocks = true)
 {
 ob_start();
-$this->displayBlock($name, $context, $blocks);
+$this->displayBlock($name, $context, $blocks, $useBlocks);
 return ob_get_clean();
 }
 public function hasBlock($name)
@@ -4504,7 +4515,7 @@ return $this->blocks;
 }
 public function display(array $context, array $blocks = array())
 {
-$this->displayWithErrorHandling($this->env->mergeGlobals($context), $blocks);
+$this->displayWithErrorHandling($this->env->mergeGlobals($context), array_merge($this->blocks, $blocks));
 }
 public function render(array $context)
 {
@@ -4542,7 +4553,7 @@ final protected function getContext($context, $item, $ignoreStrictCheck = false)
 {
 if (!array_key_exists($item, $context)) {
 if ($ignoreStrictCheck || !$this->env->isStrictVariables()) {
-return null;
+return;
 }
 throw new Twig_Error_Runtime(sprintf('Variable "%s" does not exist', $item), -1, $this->getTemplateName());
 }
@@ -4565,7 +4576,7 @@ if ($isDefinedTest) {
 return false;
 }
 if ($ignoreStrictCheck || !$this->env->isStrictVariables()) {
-return null;
+return;
 }
 if ($object instanceof ArrayAccess) {
 $message = sprintf('Key "%s" in object with ArrayAccess of class "%s" does not exist', $arrayItem, get_class($object));
@@ -4586,11 +4597,10 @@ if ($isDefinedTest) {
 return false;
 }
 if ($ignoreStrictCheck || !$this->env->isStrictVariables()) {
-return null;
+return;
 }
 throw new Twig_Error_Runtime(sprintf('Impossible to invoke a method ("%s") on a %s variable ("%s")', $item, gettype($object), $object), -1, $this->getTemplateName());
 }
-$class = get_class($object);
 if (Twig_Template::METHOD_CALL !== $type) {
 if (isset($object->$item) || array_key_exists((string) $item, $object)) {
 if ($isDefinedTest) {
@@ -4602,6 +4612,7 @@ $this->env->getExtension('sandbox')->checkPropertyAllowed($object, $item);
 return $object->$item;
 }
 }
+$class = get_class($object);
 if (!isset(self::$cache[$class]['methods'])) {
 self::$cache[$class]['methods'] = array_change_key_case(array_flip(get_class_methods($object)));
 }
@@ -4621,7 +4632,7 @@ if ($isDefinedTest) {
 return false;
 }
 if ($ignoreStrictCheck || !$this->env->isStrictVariables()) {
-return null;
+return;
 }
 throw new Twig_Error_Runtime(sprintf('Method "%s" for object "%s" does not exist', $item, get_class($object)), -1, $this->getTemplateName());
 }
@@ -4635,7 +4646,7 @@ try {
 $ret = call_user_func_array(array($object, $method), $arguments);
 } catch (BadMethodCallException $e) {
 if ($call && ($ignoreStrictCheck || !$this->env->isStrictVariables())) {
-return null;
+return;
 }
 throw $e;
 }
