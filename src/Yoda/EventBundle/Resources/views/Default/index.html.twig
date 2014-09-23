@@ -1,0 +1,10 @@
+{% extends '::base.html.twig' %}
+
+{% block title 'Yay' %}
+
+{% block body %}
+    Hello {{ name|upper }}!
+    <h2>Event Details</h2>
+    {{ event.name }}<br/>
+    {{ event.location }}
+{% endblock %}
