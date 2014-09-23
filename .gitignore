@@ -9,5 +9,4 @@
 /vendor/
 /bin/
 /composer.phar
-/.idea
-/.idea/*
+.idea/*
