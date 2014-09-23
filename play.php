@@ -29,6 +29,4 @@ $event->setDetails('Ha! Darth HATES surprises!');
 
 $em = $container->get('doctrine')->getManager();
 $em->persist($event);
-$em->flush(); 
-
-
+$em->flush();
