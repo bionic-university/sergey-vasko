@@ -1,0 +1,7 @@
+{
+    "name": "sergio/ps-1",
+    "require": {
+		"symfony/framework-standard-edition": "2.6.*@dev"
+    },
+    "minimum-stability": "dev"
+}
