@@ -1,0 +1,46 @@
+{% extends 'EventBundle::layout.html.twig' %}
+
+{% block body %}
+    <section class="event-show event-edit">
+        <header id="menu">
+            <a class="link" href="{{ path('event') }}">&larr; back to the event list</a>
+            <a class="link" href="{{ path('event_show', {'id': entity.id}) }}">show event</a>
+        </header>
+
+        <article>
+            <header class="map-container">
+
+            </header>
+            <section>
+                <form action="{{ path('event_update', { 'id': entity.id }) }}" method="post" {{ form_enctype(edit_form) }}>
+                    {{ form_start(edit_form) }}
+                    <h1>
+                        {{ form_widget(edit_form.name) }}
+                    </h1>
+
+                    <dl>
+                        <dt>where:</dt>
+                        <dd>{{ form_widget(edit_form.location) }}</dd>
+
+                        <dt>when:</dt>
+                        <dd>{{ form_widget(edit_form.time) }}</dd>
+
+                        <dt>what:</dt>
+                        <dd>
+                            {{ form_widget(edit_form.details) }}
+                        </dd>
+                    </dl>
+                    {{ form_row(edit_form.submit, { 'label': 'Save', 'attr': {'class': 'button'}}) }}
+                    {#{{ form_widget(edit_form) }}#}
+                    {{ form_end(edit_form) }}
+                </form>
+
+                <form action="{{ path('event_delete', { 'id': entity.id }) }}" method="post">
+                    {{ form_start(delete_form) }}
+                    {{ form_row(delete_form.submit, { 'label': 'Delete', 'attr': {'class': 'button'}}) }}
+                    {{ form_widget(delete_form) }}
+                </form>
+            </section>
+        </article>
+    </section>
+{% endblock %}
